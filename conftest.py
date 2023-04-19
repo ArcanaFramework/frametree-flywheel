@@ -11,7 +11,7 @@ from arcana.core.data.set import Dataset
 from arcana.core.data.row import DataRow
 from arcana.testing.data.blueprint import SIMPLE_DATASET
 from arcana.core.data.store import LocalStore
-from arcana.flywheel.data import ExampleLocal, ExampleRemote
+from arcana.flywheel.data import Flywheel
 from pydra import set_input_validator
 
 set_input_validator(True)
@@ -75,38 +75,29 @@ def install_and_launch_app(
     raise NotImplementedError
 
 
-# Change or remote this parameterisation if you only implement one of the data store templates
-DATA_STORES = ["local", "remote"]
-
-
 ############
 # FIXTURES #
 ############
 
 
-@pytest.fixture(params=DATA_STORES)
+@pytest.fixture
 def data_store(work_dir: Path, request):
-    if request.param == "local":
-        store = ExampleLocal()
-    elif request.param == "remote":
-        cache_dir = work_dir / "remote-cache"
-        if None in (TEST_STORE_URI, TEST_STORE_USER, TEST_STORE_PASSWORD):
-            raise NotImplementedError(
-                "Need to set values of 'TEST_STORE_URI', 'TEST_STORE_USER' and "
-                f"'TEST_STORE_PASSWORD' in {__file__} to point to a valid account on "
-                "an instance of the remote store that can be used for testing, i.e. "
-                "allow the creation of dummy test data.\n\n"
-                "IT SHOULD NOT BE A PRODUCTION SERVER!!"
-            )
-        store = ExampleRemote(
-            server=TEST_STORE_URI,
-            cache_dir=cache_dir,
-            user=TEST_STORE_USER,
-            password=TEST_STORE_PASSWORD,
+    cache_dir = work_dir / "remote-cache"
+    if None in (TEST_STORE_URI, TEST_STORE_USER, TEST_STORE_PASSWORD):
+        raise NotImplementedError(
+            "Need to set values of 'TEST_STORE_URI', 'TEST_STORE_USER' and "
+            f"'TEST_STORE_PASSWORD' in {__file__} to point to a valid account on "
+            "an instance of the remote store that can be used for testing, i.e. "
+            "allow the creation of dummy test data.\n\n"
+            "IT SHOULD NOT BE A PRODUCTION SERVER!!"
         )
-        store.save("test_mock_store")
-    else:
-        assert False, f"Unrecognised store {request.param}"
+    store = Flywheel(
+        server=TEST_STORE_URI,
+        cache_dir=cache_dir,
+        user=TEST_STORE_USER,
+        password=TEST_STORE_PASSWORD,
+    )
+    store.save("test_mock_store")
     yield store
 
 
