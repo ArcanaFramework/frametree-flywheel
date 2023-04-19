@@ -32,9 +32,9 @@ logger.addHandler(sch)
 # CHANGEME #
 ############
 
-TEST_STORE_URI = None  # os.environ["ARCANA_CHANGME_TEST_STORE_URI"]
-TEST_STORE_USER = None  # os.environ["ARCANA_CHANGME_TEST_STORE_USER"]
-TEST_STORE_PASSWORD = None  # os.environ["ARCANA_CHANGME_TEST_STORE_USER"]
+TEST_STORE_URI =  os.environ["ARCANA_FLYWHEEL_TEST_STORE_URI"]
+TEST_STORE_USER = os.environ["ARCANA_FLYWHEEL_TEST_STORE_USER"]
+TEST_STORE_PASSWORD = os.environ["ARCANA_FLYWHEEL_TEST_STORE_USER"]
 
 
 def install_and_launch_app(
