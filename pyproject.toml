@@ -11,8 +11,11 @@ dependencies = [
     "arcana >=0.9.4"
 ]
 license = {file = "LICENSE"}
-authors = [{name = "Change Me", email = "flywheel@flywheel.com"}]
-maintainers = [{name = "Change Me", email = "flywheel@flywheel.com"}]
+authors = [
+    {name = "Aaron Capon", email = "aaron.capon@florey.edu.au"},
+    {name = "Thomas Close", email = "tom.g.close@gmail.com"}
+]
+maintainers = [{name = "Aaron Capon", email = "aaron.capon@florey.edu.au"}]
 keywords = ["arcana"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
