@@ -11,7 +11,7 @@ from arcana.core.data.set import Dataset
 from arcana.core.data.row import DataRow
 from arcana.testing.data.blueprint import SIMPLE_DATASET
 from arcana.core.data.store import LocalStore
-from arcana.changeme.data import ExampleLocal, ExampleRemote
+from arcana.flywheel.data import ExampleLocal, ExampleRemote
 from pydra import set_input_validator
 
 set_input_validator(True)
@@ -45,7 +45,7 @@ def install_and_launch_app(
     timeout: int = 1000,  # seconds
     poll_interval: int = 10,  # seconds
 ) -> tuple[int, str, str]:
-    """Installs a new command to be run in the integrated workflow engine of the "changeme"
+    """Installs a new command to be run in the integrated workflow engine of the "flywheel"
     data store, then launches it on the specified row with the provided inputs.
 
     Parameters

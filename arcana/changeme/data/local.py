@@ -32,7 +32,7 @@ class ExampleLocal(LocalStore):
 
     # Note this name will be constant, as there is only ever one store,
     # which covers whole FS
-    name: str = "changeme"
+    name: str = "flywheel"
 
     #################################
     # Abstract-method implementations

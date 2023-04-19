@@ -3,16 +3,16 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arcana-changeme"
-description = "Description for arcana-changeme goes here"
+name = "arcana-flywheel"
+description = "Description for arcana-flywheel goes here"
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
     "arcana >=0.9.4"
 ]
 license = {file = "LICENSE"}
-authors = [{name = "Change Me", email = "changeme@changeme.com"}]
-maintainers = [{name = "Change Me", email = "changeme@changeme.com"}]
+authors = [{name = "Change Me", email = "flywheel@flywheel.com"}]
+maintainers = [{name = "Change Me", email = "flywheel@flywheel.com"}]
 keywords = ["arcana"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -55,13 +55,13 @@ test = [
 [project.urls]
 documentation = "https://arcana.readthedocs.io"
 homepage = "https://arcana.readthedocs.io"
-# repository = "https://github.com/ArcanaFramework/arcana-changeme.git"
+# repository = "https://github.com/ArcanaFramework/arcana-flywheel.git"
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "arcana/changeme/_version.py"
+version-file = "arcana/flywheel/_version.py"
 
 [tool.hatch.build]
 packages = [

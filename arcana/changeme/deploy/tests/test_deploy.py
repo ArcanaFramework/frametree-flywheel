@@ -1,7 +1,7 @@
 from pathlib import Path
 from copy import copy
 import pytest
-from arcana.changeme.deploy import ExampleApp
+from arcana.flywheel.deploy import ExampleApp
 from arcana.core.data.set import Dataset
 from arcana.testing.data.blueprint import TEST_DATASET_BLUEPRINTS
 from conftest import install_and_launch_app, make_dataset_id
@@ -9,7 +9,7 @@ from conftest import install_and_launch_app, make_dataset_id
 
 @pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
 def test_app(concatenate_dataset: Dataset, build_spec: dict, work_dir: Path):
-    """Tests the complete "changeme" deployment pipeline by building and running an app
+    """Tests the complete "flywheel" deployment pipeline by building and running an app
     against a test dataset"""
 
     image_spec = ExampleApp(**build_spec)

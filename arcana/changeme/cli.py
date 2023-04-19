@@ -1,18 +1,18 @@
 import click
 from arcana.core.deploy.command import entrypoint_opts
-from arcana.changeme.deploy import ExampleApp
+from arcana.flywheel.deploy import ExampleApp
 from arcana.core.cli.ext import ext
 
 
 @ext.group(
-    name="changeme",
+    name="flywheel",
     help="CLI extensions for interacting with BIDS datasets"
 )
-def changeme_group():
+def flywheel_group():
     pass
 
 
-@changeme_group.command(
+@flywheel_group.command(
     name="app-entrypoint",
     help="""Loads a dataset, or creates one it is not already present, then applies and
 launches a pipeline in a single command.

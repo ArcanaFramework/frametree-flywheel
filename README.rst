@@ -1,14 +1,14 @@
-Arcana Extension - changeme
+Arcana Extension - flywheel
 ===========================
-.. image:: https://github.com/arcanaframework/arcana-data-store-extension-template/actions/workflows/tests.yml/badge.svg
-    :target: https://github.com/arcanaframework/arcana-data-store-extension-template/actions/workflows/tests.yml
-.. .. image:: https://codecov.io/gh/arcanaframework/arcana-changeme/branch/main/graph/badge.svg?token=UIS0OGPST7
-..    :target: https://codecov.io/gh/arcanaframework/arcana-changeme
-.. .. image:: https://img.shields.io/pypi/pyversions/arcana-changeme.svg
-..    :target: https://pypi.python.org/pypi/arcana-changeme/
+.. image:: https://github.com/arcanaframework/arcana-flywheel/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/arcanaframework/arcana-flywheel/actions/workflows/tests.yml
+.. .. image:: https://codecov.io/gh/arcanaframework/arcana-flywheel/branch/main/graph/badge.svg?token=UIS0OGPST7
+..    :target: https://codecov.io/gh/arcanaframework/arcana-flywheel
+.. .. image:: https://img.shields.io/pypi/pyversions/arcana-flywheel.svg
+..    :target: https://pypi.python.org/pypi/arcana-flywheel/
 ..    :alt: Python versions
-.. .. image:: https://img.shields.io/pypi/v/arcana-changeme.svg
-..    :target: https://pypi.python.org/pypi/arcana-changeme/
+.. .. image:: https://img.shields.io/pypi/v/arcana-flywheel.svg
+..    :target: https://pypi.python.org/pypi/arcana-flywheel/
 ..    :alt: Latest Version
 .. image:: https://github.com/ArcanaFramework/arcana/actions/workflows/docs.yml/badge.svg
     :target: https://arcanaframework.github.io/arcana
@@ -22,7 +22,7 @@ How to Customise
 After creating a new repository on GitHub from this template, there are a few things you
 will need to change:
 
-1. do a global search and replace (across all file-types) for **changeme** and replace it with the proposed name for your extension
+1. do a global search and replace (across all file-types) for **flywheel** and replace it with the proposed name for your extension
 2. change the author and maintainer tags in the **[project]** Section of the the ``pyproject.toml`` to your name and email address
 3. there are 4 classes within this template repository, which need to be either adopted and renamed (using global search and replace), or removed from the package
     a. ``data.local.ExampleLocal`` for data stored on the local file-system in a specific structure (e.g. BIDS)
@@ -40,7 +40,7 @@ will need to change:
 
 
 .. This is a template repository for extensions to the Arcana_ framework to add support
-.. for *changeme* data stores.
+.. for *flywheel* data stores.
 
 .. Quick Installation
 .. ------------------
@@ -48,7 +48,7 @@ will need to change:
 .. This extension can be installed for Python 3 using *pip*
 
 .. .. code-block::bash
-..     $ pip3 install arcana-changeme
+..     $ pip3 install arcana-flywheel
 
 .. This will also install the core Arcana_ package
 

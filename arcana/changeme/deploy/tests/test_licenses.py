@@ -18,7 +18,7 @@ from arcana.testing.deploy.licenses import (
     LICENSE_INPUT_PATH,
     LICENSE_OUTPUT_PATH,
 )
-from arcana.changeme.deploy import ExampleApp
+from arcana.flywheel.deploy import ExampleApp
 
 
 @pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
