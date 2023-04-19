@@ -81,7 +81,7 @@ def install_and_launch_app(
 
 
 @pytest.fixture
-def data_store(work_dir: Path, request):
+def data_store(work_dir: Path, arcana_home, request):
     cache_dir = work_dir / "remote-cache"
     if None in (TEST_STORE_URI, TEST_STORE_USER, TEST_STORE_PASSWORD):
         raise NotImplementedError(
