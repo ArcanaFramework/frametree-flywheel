@@ -8,10 +8,10 @@ from arcana.core.data.set import Dataset
 from arcana.core.data.store import LocalStore
 from arcana.core.utils.serialize import asdict
 from arcana.testing.data.blueprint import (
-        TestDatasetBlueprint,
-        FileSetEntryBlueprint,
-        FieldEntryBlueprint,
-        )
+    TestDatasetBlueprint,
+    FileSetEntryBlueprint,
+    FieldEntryBlueprint,
+)
 import decimal
 from arcana.stdlib import Clinical
 from fileformats.core import FileSet, Field
@@ -36,7 +36,7 @@ DATASET_BLUEPRINTS = {
     "complete": TestDatasetBlueprint(  # dataset name
         space=Clinical,
         hierarchy=["subject", "session"],
-        dim_lengths=[2, 2],
+        dim_lengths=[2, 2, 2],
         entries=[
             FileSetEntryBlueprint(
                 path="file1", datatype=PlainText, filenames=["file.txt"]
@@ -107,7 +107,6 @@ DATASET_BLUEPRINTS = {
 }
 
 
-
 @pytest.fixture(params=list(DATASET_BLUEPRINTS))
 def dataset(data_store, work_dir, run_prefix, request):
     dataset_name = request.param
@@ -117,7 +116,7 @@ def dataset(data_store, work_dir, run_prefix, request):
     return dataset
 
 
-#@pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
+# @pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
 def test_populate_tree(dataset: Dataset):
     blueprint = dataset.__annotations__["blueprint"]
     for freq in dataset.space:
