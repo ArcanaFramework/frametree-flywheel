@@ -8,21 +8,116 @@ from arcana.core.data.set import Dataset
 from arcana.core.data.store import LocalStore
 from arcana.core.utils.serialize import asdict
 from arcana.testing.data.blueprint import (
-    EXTENSION_DATASET_BLUEPRINTS,
+        TestDatasetBlueprint,
+        FileSetEntryBlueprint,
+        FieldEntryBlueprint,
+        )
+import decimal
+from arcana.stdlib import Clinical
+from fileformats.core import FileSet, Field
+from fileformats.generic import Directory
+from fileformats.text import Plain as PlainText
+from fileformats.archive import Zip
+from fileformats.field import Text as TextField, Decimal, Boolean, Integer, Array
+from fileformats.serialization import Json
+from fileformats.testing import (
+    MyFormatGz,
+    MyFormatGzX,
+    MyFormatX,
+    MyFormat,
+    ImageWithHeader,
+    YourFormat,
+    Xyz,
 )
 from conftest import make_dataset_id
 
 
-@pytest.fixture(params=list(EXTENSION_DATASET_BLUEPRINTS))
+DATASET_BLUEPRINTS = {
+    "complete": TestDatasetBlueprint(  # dataset name
+        space=Clinical,
+        hierarchy=["subject", "session"],
+        dim_lengths=[2, 2],
+        entries=[
+            FileSetEntryBlueprint(
+                path="file1", datatype=PlainText, filenames=["file.txt"]
+            ),
+            FileSetEntryBlueprint(
+                path="file2", datatype=MyFormatGz, filenames=["file.my.gz"]
+            ),
+            FileSetEntryBlueprint(
+                path="file3",
+                datatype=MyFormatGzX,
+                filenames=["file.my.gz", "file.json"],
+            ),
+            FileSetEntryBlueprint(path="dir1", datatype=Directory, filenames=["dir1"]),
+            FieldEntryBlueprint(
+                path="textfield",
+                row_frequency="abcd",
+                datatype=TextField,
+                value="sample-text",
+            ),  # Derivatives to insert
+            FieldEntryBlueprint(
+                path="booleanfield",
+                row_frequency="c",
+                datatype=Boolean,
+                value="no",
+                expected_value=False,
+            ),  # Derivatives to insert
+        ],
+        derivatives=[
+            FileSetEntryBlueprint(
+                path="deriv1",
+                row_frequency="abcd",
+                datatype=PlainText,
+                filenames=["file1.txt"],
+            ),  # Derivatives to insert
+            FileSetEntryBlueprint(
+                path="deriv2",
+                row_frequency="c",
+                datatype=Directory,
+                filenames=["dir"],
+            ),
+            FileSetEntryBlueprint(
+                path="deriv3",
+                row_frequency="bd",
+                datatype=PlainText,
+                filenames=["file1.txt"],
+            ),
+            FieldEntryBlueprint(
+                path="integerfield",
+                row_frequency="c",
+                datatype=Integer,
+                value=99,
+            ),
+            FieldEntryBlueprint(
+                path="decimalfield",
+                row_frequency="bd",
+                datatype=Decimal,
+                value="33.3333",
+                expected_value=decimal.Decimal("33.3333"),
+            ),
+            FieldEntryBlueprint(
+                path="arrayfield",
+                row_frequency="bd",
+                datatype=Array[Integer],
+                value=[1, 2, 3, 4, 5],
+            ),
+        ],
+    ),
+}
+
+
+
+@pytest.fixture(params=list(DATASET_BLUEPRINTS))
 def dataset(data_store, work_dir, run_prefix, request):
     dataset_name = request.param
-    blueprint = EXTENSION_DATASET_BLUEPRINTS[dataset_name].translate_to(data_store)
+    blueprint = DATASET_BLUEPRINTS[dataset_name].translate_to(data_store)
     dataset_id = make_dataset_id(data_store, dataset_name, work_dir, run_prefix)
     dataset = blueprint.make_dataset(data_store, dataset_id)
     return dataset
 
 
-@pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
+#@pytest.mark.xfail(reason="Hasn't been implemented yet", raises=NotImplementedError)
 def test_populate_tree(dataset: Dataset):
     blueprint = dataset.__annotations__["blueprint"]
     for freq in dataset.space:

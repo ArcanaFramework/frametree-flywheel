@@ -8,7 +8,8 @@ description = "Description for arcana-flywheel goes here"
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "arcana >=0.9.4"
+    "arcana >=0.9.4",
+    "flywheel-sdk ==16.8.16"
 ]
 license = {file = "LICENSE"}
 authors = [

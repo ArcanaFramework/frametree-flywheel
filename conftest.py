@@ -32,9 +32,12 @@ logger.addHandler(sch)
 # CHANGEME #
 ############
 
-TEST_STORE_URI =  os.environ["ARCANA_FLYWHEEL_TEST_STORE_URI"]
-TEST_STORE_USER = os.environ["ARCANA_FLYWHEEL_TEST_STORE_USER"]
-TEST_STORE_PASSWORD = os.environ["ARCANA_FLYWHEEL_TEST_STORE_API"]
+
+print(sorted(list(os.environ.keys())))
+
+# TEST_STORE_URI =  os.environ["ARCANA_FLYWHEEL_TEST_STORE_URI"]
+# TEST_STORE_USER = os.environ["ARCANA_FLYWHEEL_TEST_STORE_USER"]
+TEST_STORE_PASSWORD = "fw.epilepsyproject.org.au:0JT8tiJh9CMCDQCbCM"
 
 
 def install_and_launch_app(
@@ -83,7 +86,8 @@ def install_and_launch_app(
 @pytest.fixture
 def data_store(work_dir: Path, arcana_home, request):
     cache_dir = work_dir / "remote-cache"
-    if None in (TEST_STORE_URI, TEST_STORE_USER, TEST_STORE_PASSWORD):
+    cache_dir.mkdir()
+    if TEST_STORE_PASSWORD is None:
         raise NotImplementedError(
             "Need to set values of 'TEST_STORE_URI', 'TEST_STORE_USER' and "
             f"'TEST_STORE_PASSWORD' in {__file__} to point to a valid account on "
@@ -92,9 +96,8 @@ def data_store(work_dir: Path, arcana_home, request):
             "IT SHOULD NOT BE A PRODUCTION SERVER!!"
         )
     store = Flywheel(
-        server=TEST_STORE_URI,
+        server="dummy",
         cache_dir=cache_dir,
-        user=TEST_STORE_USER,
         password=TEST_STORE_PASSWORD,
     )
     store.save("test_mock_store")
