@@ -11,9 +11,13 @@ from arcana.core.data.row import DataRow
 from arcana.core.data.tree import DataTree
 from arcana.core.data.entry import DataEntry
 
+from arcana.stdlib import Clinical
+
 import flywheel
 # from flywheel.models.project_input import ProjectInput
 
+import logging
+logger = logging.getLogger("arcana")
 
 @attrs.define(kw_only=True, slots=False)
 class Flywheel(RemoteStore):
@@ -55,28 +59,27 @@ class Flywheel(RemoteStore):
         tree : DataTree
             the data tree to populate with leaf nodes
         """
-        # Flywheel client does not act as context manager
 
-        # Get all "leaf" nodes, i.e. XNAT imaging session objects
-        fwproject = self.client.get_project(tree.dataset_id) # long string
-        subjects = sorted(fwproject.subjects(), key=lambda x: x.label)
-        for fwsubject in subjects:
-            # Sort sessions into a logical order
-            fwsessions = sorted(
-                fwsubject.sessions().values(),
-                key=lambda x: x.timestamp,
-            )
-            for fwsess in fwsessions:
-                date = fwsess.date.strftime("%Y%m%d") if fwsess.timestamp else None
-                metadata = {
-                    "session": {
-                        "date": date,
-                        "age": fwsess.age/31536000,
-                    }
-                }
-                tree.add_leaf(
-                    [fwsubject.label, fwsess.label], metadata=metadata
+        with self.connection:
+            logger.debug(f"DATASET ID: {tree.dataset_id}")
+            fwproject = self.connection.lookup(f"arcana_tests/{tree.dataset_id}")
+            subjects = sorted(fwproject.subjects(), key=lambda x: x.label)
+            for fwsubject in subjects:
+                fwsessions = sorted(
+                    fwsubject.sessions(),
+                    key=lambda x: x.timestamp,
                 )
+                for fwsess in fwsessions:
+                    date = fwsess.date.strftime("%Y%m%d") if fwsess.timestamp else None
+                    metadata = {
+                        "session": {
+                            "date": date,
+                            "age": fwsess.age/31536000 if fwsess.age is not None else -1,
+                        }
+                    }
+                    tree.add_leaf(
+                        [fwsubject.label, fwsess.label], metadata=metadata
+                    )
 
     def populate_row(self, row: DataRow):
         """Scans a node in the data tree corresponding to the data row and populates a
@@ -225,16 +228,17 @@ class Flywheel(RemoteStore):
         """
         with self.connection:
 
-            # proj_details = ProjectInput(label=id, group="test")
-            # proj_id = self.connection.add_project(proj_details)
-            #
-            group = self.connection.get("test")
+            group = self.connection.get("arcana_tests")
             project = group.add_project(label=id)
             for ids_tuple in leaves:
-                print(ids_tuple)
+                logger.debug(ids_tuple)
                 subject_id, session_id = ids_tuple
-                # Create subject
-                subject = project.add_subject(label=f"{subject_id}")
+                try:
+                    # Create subject
+                    subject = project.add_subject(label=f"{subject_id}")
+                except flywheel.ApiException:
+                    # subject already exists
+                    continue
                 # Create session
                 subject.add_session(label=f"{session_id}")
 
@@ -427,12 +431,12 @@ class Flywheel(RemoteStore):
     # Helper methods #
     ##################
 
-    def determine_fwrow(self, row: DataRow):
+    def get_fwrow(self, row: DataRow):
         """
         """
 
         with self.connection:
-            fwproject = self.connection.lookup(row.dataset.id)
+            fwproject = self.connection.lookup(f"arcana_tests/{row.dataset.id}")
             # Check level in heirarchy
             if row.frequency == Clinical.dataset:
                 fwrow = fwproject
