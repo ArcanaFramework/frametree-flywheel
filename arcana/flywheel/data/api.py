@@ -5,7 +5,7 @@ from __future__ import annotations
 import typing as ty
 from pathlib import Path
 import attrs
-from fileformats.core.base import FileSet
+from fileformats.core import FileSet
 from arcana.core.data.store import RemoteStore
 from arcana.core.data.row import DataRow
 from arcana.core.data.tree import DataTree
@@ -14,10 +14,13 @@ from arcana.core.data.entry import DataEntry
 from arcana.stdlib import Clinical
 
 import flywheel
+
 # from flywheel.models.project_input import ProjectInput
 
 import logging
+
 logger = logging.getLogger("arcana")
+
 
 @attrs.define(kw_only=True, slots=False)
 class Flywheel(RemoteStore):
@@ -74,12 +77,12 @@ class Flywheel(RemoteStore):
                     metadata = {
                         "session": {
                             "date": date,
-                            "age": fwsess.age/31536000 if fwsess.age is not None else -1,
+                            "age": fwsess.age / 31536000
+                            if fwsess.age is not None
+                            else -1,
                         }
                     }
-                    tree.add_leaf(
-                        [fwsubject.label, fwsess.label], metadata=metadata
-                    )
+                    tree.add_leaf([fwsubject.label, fwsess.label], metadata=metadata)
 
     def populate_row(self, row: DataRow):
         """Scans a node in the data tree corresponding to the data row and populates a
@@ -101,7 +104,7 @@ class Flywheel(RemoteStore):
         row : DataRow
             The row to populate with entries
         """
-        
+
         raise NotImplementedError
 
     def save_dataset_definition(
@@ -242,7 +245,6 @@ class Flywheel(RemoteStore):
                 # Create session
                 subject.add_session(label=f"{session_id}")
 
-
     ################################
     # RemoteStore-specific methods #
     ################################
@@ -288,7 +290,7 @@ class Flywheel(RemoteStore):
         else:
             acquisition = self.connection.get(entry.uri)
             acquisition.upload_file(cache_path)
-        
+
     def download_value(
         self, entry: DataEntry
     ) -> ty.Union[float, int, str, list[float], list[int], list[str]]:
@@ -345,9 +347,9 @@ class Flywheel(RemoteStore):
         """
 
         # Determine level (proj, sub, sess)
-        fwrow = determine_fwrow(row) 
+        fwrow = determine_fwrow(row)  # noqa
 
-        if "@" in entry.uri:
+        if "@" in entry.uri:  # noqa
             # file_refs refer to to the input files used to generate the
             # analysis results
             # calculate with: file_ref = acquisition.get_file("FILENAME").ref()
@@ -367,7 +369,6 @@ class Flywheel(RemoteStore):
             uri=fw_id,
         )
         return entry
-
 
     def create_field_entry(self, path: str, datatype: type, row: DataRow) -> DataEntry:
         """
@@ -432,12 +433,11 @@ class Flywheel(RemoteStore):
     ##################
 
     def get_fwrow(self, row: DataRow):
-        """
-        """
+        """ """
 
         with self.connection:
             fwproject = self.connection.lookup(f"arcana_tests/{row.dataset.id}")
-            # Check level in heirarchy
+            # Check level in hierarchy
             if row.frequency == Clinical.dataset:
                 fwrow = fwproject
             elif row.frequency == Clinical.subject:
@@ -445,8 +445,6 @@ class Flywheel(RemoteStore):
             elif row.frequency == Clinical.session:
                 fwrow = fwproject.get(row.frequency_id("session"))
             else:
-                raise NotImplementedError 
-            
+                raise NotImplementedError
+
             return fwrow
-
-
