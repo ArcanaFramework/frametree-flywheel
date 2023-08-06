@@ -11,7 +11,7 @@ from arcana.core.data.row import DataRow
 from arcana.core.data.tree import DataTree
 from arcana.core.data.entry import DataEntry
 
-from arcana.stdlib import Clinical
+from arcana.common import Clinical
 
 import flywheel
 
