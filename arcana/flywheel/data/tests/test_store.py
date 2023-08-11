@@ -13,7 +13,7 @@ from arcana.testing.data.blueprint import (
     FieldEntryBlueprint,
 )
 import decimal
-from arcana.stdlib import Clinical
+from arcana.common import Clinical
 from fileformats.core import FileSet, Field
 from fileformats.generic import Directory
 from fileformats.text import Plain as PlainText

@@ -5,16 +5,17 @@ from __future__ import annotations
 import typing as ty
 from pathlib import Path
 import attrs
-from fileformats.core.base import FileSet
+import hashlib
+import shutil
+from fileformats.core import FileSet
 from arcana.core.data.store import RemoteStore
 from arcana.core.data.row import DataRow
 from arcana.core.data.tree import DataTree
 from arcana.core.data.entry import DataEntry
 
-from arcana.stdlib import Clinical
+from arcana.common import Clinical
 
 import flywheel
-# from flywheel.models.project_input import ProjectInput
 
 import logging
 logger = logging.getLogger("arcana")
@@ -45,7 +46,7 @@ class Flywheel(RemoteStore):
     # DataStore abstractmethods #
     #############################
 
-    def populate_tree(self, tree: DataTree):
+    def populate_tree(self, tree: DataTree) -> None:
         """Scans the data present in the dataset and populates the nodes of the data
         tree with those found in the dataset using the ``DataTree.add_leaf`` method for
         every "leaf" node of the dataset tree.
@@ -141,7 +142,7 @@ class Flywheel(RemoteStore):
         """
         raise NotImplementedError
 
-    def connect(self):
+    def connect(self) -> flywheel.client.Client:
         """
         If a connection session is required to the store it should be generated here
 
@@ -151,9 +152,7 @@ class Flywheel(RemoteStore):
             the session object returned by `connect` to be closed gracefully
         """
 
-        # Flywheel Client is not designed to be a context manager
         return flywheel.Client()
-        # raise NotImplementedError
 
     def disconnect(self, session):
         """
@@ -201,7 +200,7 @@ class Flywheel(RemoteStore):
         space: type,
         hierarchy: list[str],
         **kwargs,
-    ):
+    ) -> None:
         """Creates a new dataset within the store, then creates an empty data tree
         specified by the provided leaf IDs. Used in dataset import/exports and in
         generated dummy data for test routines
@@ -270,7 +269,7 @@ class Flywheel(RemoteStore):
         """
         raise NotImplementedError
 
-    def upload_files(self, cache_path: Path, entry: DataEntry):
+    def upload_files(self, cache_path: Path, entry: DataEntry) -> None:
         """Upload all files contained within `input_dir` to the specified entry in the
         data store
 
@@ -282,12 +281,26 @@ class Flywheel(RemoteStore):
             the entry in the data store to upload the files to
         """
 
+        print(f"\n\n{cache_path=}")
+        print(f"  {list(cache_path.iterdir())=}")
+
+        # checksums = self.calculate_checksums(FileSet(list(cache_path.iterdir())))
+        # checksums = self.calculate_checksums(FileSet(cache_path))
+        checksums = self.calculate_checksums(cache_path)
+
         if "@" in entry.uri:
             analysis = self.connection.get(entry.uri)
-            analysis.upload_output(cache_path)
+            for in_file in cache_path.iterdir():
+                analysis.upload_output(cache_path)
+            
+            analysis.update_info({"arcana_checksums": checksums})
         else:
             acquisition = self.connection.get(entry.uri)
-            acquisition.upload_file(cache_path)
+            for in_file in cache_path.iterdir():
+                acquisition.upload_file(in_file)
+            
+            print(f"  Checksums right before upload: {checksums}")
+            acquisition.update_info({"arcana_checksums": checksums})
         
     def download_value(
         self, entry: DataEntry
@@ -312,7 +325,7 @@ class Flywheel(RemoteStore):
         value: ty.Union[float, int, str, list[float], list[int], list[str]],
         entry: DataEntry,
     ):
-        """Store the value for a field in the XNAT repository
+        """Store the value for a field in the Flywheel repository
 
         Parameters
         ----------
@@ -344,31 +357,36 @@ class Flywheel(RemoteStore):
             the created entry for the field
         """
 
-        # Determine level (proj, sub, sess)
-        fwrow = determine_fwrow(row) 
+        logger.debug(f"creating {datatype} entry at {path} in {row}")
+        # print(f"creating {datatype} entry at {path} in {row}")
 
-        if "@" in entry.uri:
-            # file_refs refer to to the input files used to generate the
-            # analysis results
-            # calculate with: file_ref = acquisition.get_file("FILENAME").ref()
-            file_refs = "it worked"
-            analysis = fwrow.add_analysis(label=row.label, inputs=[file_refs])
-            fw_id = analysis.id
-        else:
-            # COPY XNAT EXCEPTION
-            acquisition = fwrow.add_acquisition(f"label={row.label}")
-            fw_id = acquisition.id
+        with self.connection:
+            fwrow = self.get_fwrow(row)
+            if not DataEntry.path_is_derivative(path):
+                if row.frequency != Clinical.session:
+                    raise ArcanaUsageError(
+                        f"Cannot create file-set entry for '{path}': non-derivative "
+                        "file-sets (specified by entry paths that don't contain a "
+                        "'@' separator) are only allowed in MRSession nodes"
+                    )
+                scan_id = path.split("/")
+                # print(f"{scan_id=}")
+                
+                fwformat = None
+                acq = fwrow.add_acquisition(label=f"{scan_id}")
+            else:
+                fwformat = datatype.mime_like
+                resource_label = path2label(path)
+                # TODO: Need derivs call to above
 
-        logger.debug("Created entry %s", fw_id)
-        # Add corresponding entry to row
-        entry = row.add_entry(
-            path=path,
-            datatype=datatype,
-            uri=fw_id,
-        )
+            # Add corresponding entry to row
+            entry = row.add_entry(
+                path=path,
+                datatype=datatype,
+                uri=acq.id,
+            )
         return entry
-
-
+        
     def create_field_entry(self, path: str, datatype: type, row: DataRow) -> DataEntry:
         """
         Creates a new data entry to store a field
@@ -406,7 +424,20 @@ class Flywheel(RemoteStore):
             the checksums downloaded from the remote store. Keys are the
             paths of the files and the values are the checksums of their contents
         """
-        raise NotImplementedError
+
+        print("  Getting checksums...")
+
+        with self.connection:
+            container = self.connection.get(uri)
+
+            # Access custom info
+            checksums = container.info["arcana_checksums"]
+
+        print(f"  checksum -> {checksums}")
+
+        return checksums
+
+
 
     def calculate_checksums(self, fileset: FileSet) -> dict[str, str]:
         """
@@ -425,7 +456,47 @@ class Flywheel(RemoteStore):
             the checksums calculated from the local file-set. Keys are the
             paths of the files and the values are the checksums of their contents
         """
-        raise NotImplementedError
+
+        print("  Calculating checksums")
+        print(f"   {fileset}, type: {type(fileset)}")
+
+        hashes: dict = {}
+
+        # If input is a Path object (file or directory)
+        if isinstance(fileset, Path):
+            for file in fileset.iterdir():
+                print(f"     {file=}")
+                if not file.is_file():
+                    # ZIP!
+                    shutil.make_archive(str(file), "zip", str(file))
+                    file = file.with_suffix(".zip")
+                    print(f"     zipped: {file}")
+                    
+                with open(file, 'rb') as input_file:
+                    crypto_object: hashlib.HASH = hashlib.sha256()
+                    data: bytes = input_file.read()
+                    crypto_object.update(data)
+                hashes[str(file)] = crypto_object.hexdigest() 
+        # If object is a fileformat type
+        else:
+            with open(fileset, 'rb') as input_file:
+                crypto_object: hashlib.HASH = hashlib.sha256()
+                data: bytes = input_file.read()
+                crypto_object.update(data)
+            hashes[str(fileset)] = crypto_object.hexdigest() 
+
+
+        # # The checksums are stored as key-value pairs in the Flywheel container custom information section.
+        # # However on Flywheel the key must not contain . or start with _ $
+        # # So we do the replacement here rather run into mismatches later
+        hashes = {key.replace(".", "_"): value for key, value in hashes.items()}
+
+        print(f"     {hashes=}")
+
+        return hashes
+        # print(f" Fileset hash: {fileset.hash()}")
+        # return fileset.hash()
+
 
     ##################
     # Helper methods #
@@ -433,20 +504,25 @@ class Flywheel(RemoteStore):
 
     def get_fwrow(self, row: DataRow):
         """
+        Returns the Flywheel project, subject or session corresponding to the provided row
+
+        Parameters
+        ----------
+        row : DataRow
+            The row to get the corresponding XNAT row for
         """
 
         with self.connection:
             fwproject = self.connection.lookup(f"arcana_tests/{row.dataset.id}")
+            print(f"{row.frequency_id('session')}")
             # Check level in heirarchy
             if row.frequency == Clinical.dataset:
                 fwrow = fwproject
             elif row.frequency == Clinical.subject:
-                fwrow = fwproject.get(row.frequency_id("subject"))
+                fwrow = fwproject.subjects.find_one(f"label={row.frequency_id('subject')}")
             elif row.frequency == Clinical.session:
-                fwrow = fwproject.get(row.frequency_id("session"))
+                fwrow = fwproject.sessions.find_one(f"label={row.frequency_id('session')}")
             else:
                 raise NotImplementedError 
             
             return fwrow
-
-
