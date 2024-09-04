@@ -1,2 +1,2 @@
 from ._version import __version__
-from .data import Flywheel
+from .api import Flywheel

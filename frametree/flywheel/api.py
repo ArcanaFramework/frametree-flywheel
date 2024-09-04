@@ -1,17 +1,18 @@
 """
 Flywheel api class
 """
+
 from __future__ import annotations
 import typing as ty
 from pathlib import Path
 import attrs
 from fileformats.core import FileSet
-from arcana.core.data.store import RemoteStore
-from arcana.core.data.row import DataRow
-from arcana.core.data.tree import DataTree
-from arcana.core.data.entry import DataEntry
+from frametree.core.store import RemoteStore
+from frametree.core.row import DataRow
+from frametree.core.tree import DataTree
+from frametree.core.entry import DataEntry
 
-from arcana.common import Clinical
+from frametree.common import Clinical
 
 import flywheel
 
@@ -77,9 +78,9 @@ class Flywheel(RemoteStore):
                     metadata = {
                         "session": {
                             "date": date,
-                            "age": fwsess.age / 31536000
-                            if fwsess.age is not None
-                            else -1,
+                            "age": (
+                                fwsess.age / 31536000 if fwsess.age is not None else -1
+                            ),
                         }
                     }
                     tree.add_leaf([fwsubject.label, fwsess.label], metadata=metadata)

@@ -64,4 +64,4 @@ This work is licensed under a
 
 
 
-.. _Arcana: http://arcana.readthedocs.io
+.. _Arcana: http://frametree.readthedocs.io

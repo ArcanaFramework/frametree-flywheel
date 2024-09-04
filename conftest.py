@@ -7,11 +7,11 @@ from pathlib import Path
 from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
-from arcana.core.data.set import Dataset
-from arcana.core.data.row import DataRow
-from arcana.testing.data.blueprint import SIMPLE_DATASET
-from arcana.core.data.store import LocalStore
-from arcana.flywheel.data import Flywheel
+from frametree.core.set import Dataset
+from frametree.core.row import DataRow
+from frametree.testing.data.blueprint import SIMPLE_DATASET
+from frametree.core.store import LocalStore
+from frametree.flywheel.data import Flywheel
 
 try:
     from pydra import set_input_validator

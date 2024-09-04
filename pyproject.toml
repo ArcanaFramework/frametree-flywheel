@@ -3,12 +3,12 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "arcana-flywheel"
-description = "Description for arcana-flywheel goes here"
+name = "frametree-flywheel"
+description = "Description for frametree-flywheel goes here"
 readme = "README.rst"
 requires-python = ">=3.8"
 dependencies = [
-    "arcana >=0.9.4",
+    "frametree >=0.9.4",
     "flywheel-sdk ==16.8.16"
 ]
 license = {file = "LICENSE"}
@@ -17,7 +17,7 @@ authors = [
     {name = "Thomas Close", email = "tom.g.close@gmail.com"}
 ]
 maintainers = [{name = "Aaron Capon", email = "aaron.capon@florey.edu.au"}]
-keywords = ["arcana"]
+keywords = ["frametree"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Environment :: Console",
@@ -57,19 +57,19 @@ test = [
 ]
 
 [project.urls]
-documentation = "https://arcana.readthedocs.io"
-homepage = "https://arcana.readthedocs.io"
-# repository = "https://github.com/ArcanaFramework/arcana-flywheel.git"
+documentation = "https://frametree.readthedocs.io"
+homepage = "https://frametree.readthedocs.io"
+# repository = "https://github.com/ArcanaFramework/frametree-flywheel.git"
 
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "arcana/flywheel/_version.py"
+version-file = "frametree/flywheel/_version.py"
 
 [tool.hatch.build]
 packages = [
-    "arcana",
+    "frametree",
 ]
 exclude = [
     "/tests",

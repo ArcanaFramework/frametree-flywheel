@@ -4,22 +4,21 @@ import pytest
 from copy import copy
 from fileformats.generic import File
 from fileformats.field import Text as TextField
-from arcana.core.data.set import Dataset
-from arcana.core.data.store import LocalStore
-from arcana.core.utils.serialize import asdict
-from arcana.testing.data.blueprint import (
+from frametree.core.set import FrameSet
+from frametree.core.store import LocalStore
+from frametree.core.utils.serialize import asdict
+from frametree.testing.blueprint import (
     TestDatasetBlueprint,
     FileSetEntryBlueprint,
     FieldEntryBlueprint,
 )
 import decimal
-from arcana.common import Clinical
+from frametree.common import Clinical
 from fileformats.core import FileSet, Field
 from fileformats.generic import Directory
 from fileformats.text import Plain as PlainText
-from fileformats.archive import Zip
+from fileformats.application import Zip, Json
 from fileformats.field import Text as TextField, Decimal, Boolean, Integer, Array
-from fileformats.serialization import Json
 from fileformats.testing import (
     MyFormatGz,
     MyFormatGzX,
