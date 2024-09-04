@@ -20,5 +20,5 @@ __pycache__
 .vscode
 *.egg-info
 ~*
-/arcana/*/_version.py
+/frametree/*/_version.py
 *.venv
